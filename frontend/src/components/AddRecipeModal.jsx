@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
 
-export default function AddRecipeModal({ onClose }) {
+export default function AddRecipeModal({ onClose, onRecipeAdded }) {
   const [formData, setFormData] = useState({
     recipeName: "",
     ingredients: "",
@@ -35,9 +35,9 @@ export default function AddRecipeModal({ onClose }) {
         headers: { "Content-Type": "application/json" },
       });
 
-      console.log("✅ Recipe Added:", res.data);
-      alert("Recipe added successfully!");
+      onRecipeAdded(res.data);
       onClose();
+      alert("Recipe added successfully!");
     } catch (err) {
       console.error("❌ Error adding recipe:", err.response?.data || err.message);
       alert("Failed to add recipe — check console for details.");

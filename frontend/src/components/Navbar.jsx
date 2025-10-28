@@ -3,7 +3,7 @@ import { useState } from "react";
 import AddRecipeModal from "./AddRecipeModal";
 import LoginModal from "./LoginModal"
 
-export default function Navbar() {
+export default function Navbar({ onRecipeAdded }) {
   const [isLoginOpen, setLoginOpen] = useState(false);
   const [isAddOpen, setAddOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -80,7 +80,7 @@ export default function Navbar() {
           </div>
         )}
       </nav>
-      {isAddOpen && <AddRecipeModal onClose={() => setAddOpen(false)} />}
+      {isAddOpen && <AddRecipeModal onClose={() => setAddOpen(false)} onRecipeAdded={onRecipeAdded} />}
       {isLoginOpen && <LoginModal onClose={() => setLoginOpen(false)} />}
     </>
   );
