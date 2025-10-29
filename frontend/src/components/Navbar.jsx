@@ -3,7 +3,7 @@ import { useState } from "react";
 import AddRecipeModal from "./AddRecipeModal";
 import LoginModal from "./LoginModal"
 
-export default function Navbar({ onRecipeAdded }) {
+export default function Navbar({ onRecipeAdded, setSearchTerm }) {
   const [isLoginOpen, setLoginOpen] = useState(false);
   const [isAddOpen, setAddOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -25,6 +25,7 @@ export default function Navbar({ onRecipeAdded }) {
               type="text"
               placeholder="Search Recipes"
               className="outline-none px-2 bg-transparent text-sm text-black"
+              onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
             />
           </div>
 
