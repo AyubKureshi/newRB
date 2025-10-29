@@ -1,49 +1,45 @@
-import { AnimatePresence, motion } from "framer-motion";
+import axios from "axios";
+import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useState } from "react";
-import axios from "axios";
-import RegisterModal from "./RegisterModal";
 
-export default function LoginModal({ onClose, onLogin, onOpenRegister }) {
-  const [form, setForm] = useState({ email: "", password: "" });
+export default function RegisterModal({ onClose, onLogin, onLoginOpen }) {
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [showRegister, setShowRegister] = useState(false);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (!form.email || !form.password) {
-      setError("Please fill both fields");
+
+    if (!form.name || !form.email || !form.password) {
+      setError("Please fill all fields");
       return;
     }
 
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:3000/auth/login", form, {
+      const res = await axios.post("http://localhost:3000/auth/register", form, {
         headers: { "Content-Type": "application/json" },
       });
 
-      // response contains token and user
       const { token, user } = res.data;
 
-      // store token and user — localStorage for simplicity
+      // ✅ fixed typo
       localStorage.setItem("rb_token", token);
       localStorage.setItem("rb_user", JSON.stringify(user));
 
-      // optional: set axios default header for future requests
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      // notify parent (Navbar) that login happened
       if (onLogin) onLogin(user);
 
-      alert("Login successful ✅");
+      alert("Registration successful ✅");
       onClose();
     } catch (err) {
-      console.error("Login error:", err.response?.data || err.message);
-      setError(err.response?.data?.error || "Login failed");
+      console.error("Registration error: ", err.response?.data || err.message);
+      setError(err.response?.data?.error || "Registration failed, try again later");
     } finally {
       setLoading(false);
     }
@@ -67,29 +63,36 @@ export default function LoginModal({ onClose, onLogin, onOpenRegister }) {
             <X size={20} />
           </button>
 
-          <h2 className="text-2xl font-semibold text-center text-orange-600 mb-4">
-            Login
-          </h2>
+          <h2 className="text-2xl font-semibold text-center text-orange-600 mb-4">Register</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <label className="block text-sm font-medium text-gray-700">Name</label>
               <input
-                name="email"
+                type="text"
+                name="name"
+                value={form.name}
+                onChange={handleChange}
+                required
+                className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500 outline-none"
+                placeholder="Enter your name"
+              />
+
+              <label className="block text-sm font-medium text-gray-700 mt-3">Email</label>
+              <input
                 type="email"
+                name="email"
                 value={form.email}
                 onChange={handleChange}
                 required
                 className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-orange-500 outline-none"
                 placeholder="you@example.com"
               />
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Password</label>
+              <label className="block text-sm font-medium text-gray-700 mt-3">Password</label>
               <input
-                name="password"
                 type="password"
+                name="password"
                 value={form.password}
                 onChange={handleChange}
                 required
@@ -113,34 +116,22 @@ export default function LoginModal({ onClose, onLogin, onOpenRegister }) {
                 disabled={loading}
                 className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700"
               >
-                {loading ? "Logging in..." : "Login"}
+                {loading ? "Registering..." : "Register"}
               </button>
             </div>
           </form>
 
           <div className="mt-4 text-center text-sm text-gray-600">
-            Don't have an account? 
+            Or use your account!{" "}
             <button
               className="text-orange-600 underline ml-1"
               onClick={() => {
-                if (onOpenRegister) onOpenRegister();
+                if(onLoginOpen) onLoginOpen();
               }}
             >
-              Register
+              Login
             </button>
           </div>
-
-          {showRegister && (
-            <RegisterModal
-              onClose={() => setShowRegister(false)}
-              onLogin={(user) => {
-                // Auto-login right after successful registration
-                if (onLogin) onLogin(user);
-                setShowRegister(false);
-              }}
-            />
-          )}
-
         </motion.div>
       </motion.div>
     </AnimatePresence>

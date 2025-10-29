@@ -1,7 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { User } from '../model/userSchema';
+import { User } from "../model/userSchema.js";
 
 const router = express.Router();
 const SALT_ROUNDS = 10;
