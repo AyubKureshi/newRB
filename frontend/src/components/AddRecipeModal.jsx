@@ -31,7 +31,7 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
     try {
       console.log("Submitting:", formattedData);
 
-      const res = await axios.post("http://localhost:3000/addRecipe", formattedData, {
+      const res = await axios.post("https://newrb-backend.onrender.com/addRecipe", formattedData, {
         headers: { "Content-Type": "application/json" },
       });
 
