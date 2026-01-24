@@ -7,7 +7,7 @@ export function UserRecipe() {
 
   const fetchRecipes = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/recipes");
+      const res = await axios.get("https://newrb-backend.onrender.com/recipes");
       setRecipes(res.data);
     } catch (err) {
       console.error("Error fetching recipes:", err);
