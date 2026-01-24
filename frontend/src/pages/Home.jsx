@@ -30,7 +30,7 @@ export default function Home({ searchTerm, setSearchTerm }) {
   );
 
   return (
-    <div className="pt-24 px-6 bg-black min-h-screen">
+    <div className="md:pt-24 pt-32 px-6 bg-black min-h-screen">
       <Navbar onRecipeAdded={handleNewRecipe} setSearchTerm={setSearchTerm} />
       <h1 className="text-3xl text-orange-500 font-bold mb-6 text-center">
         🍳 Your Recipes
