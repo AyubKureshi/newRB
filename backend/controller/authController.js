@@ -1,16 +1,14 @@
-import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { User } from "../model/userSchema.js";
 
-const router = express.Router();
 const SALT_ROUNDS = 10;
 
-router.post('/register', async (req,res) => {
+export const postRegister = async (req,res) => {
     try {
         const { name, email, password } = req.body;
         if(!name) return res.status(400).json({ error: "Name is required" });
-        if(!name || !password) return res.status(400).json({ error: "Email and password required" });
+        if(!email || !password) return res.status(400).json({ error: "Email and password required" });
 
         const existing = await User.findOne({ email });
         if(existing) return res.status(409).json({ error: "User already exists" });
@@ -26,9 +24,9 @@ router.post('/register', async (req,res) => {
         console.error(err);
         res.status(500).json({ error: 'Server error' });
     }
-});
+}
 
-router.post('/login', async (req,res) => {
+export const postLogin = async (req,res) => {
     try {
         const { email, password } = req.body;
         if(!email || !password) return res.status(400).json({ error: "Email and password required" });
@@ -46,6 +44,4 @@ router.post('/login', async (req,res) => {
         console.log(err);
         res.status(500).json({ error: 'Server error' });
     }
-});
-
-export default router;
+}

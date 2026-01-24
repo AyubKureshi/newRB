@@ -37,7 +37,7 @@ export default function Home({ searchTerm, setSearchTerm }) {
       </h1>
 
       {filteredRecipes.length > 0 ? (
-        <div className="flex flex-wrap justify-center gap-6">
+        <div className="flex flex-wrap justify-center gap-6 py-4">
           {filteredRecipes.map((r) => (
             <RecipeCard
               key={r._id}
