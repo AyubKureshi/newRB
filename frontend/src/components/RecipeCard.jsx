@@ -14,7 +14,7 @@ export default function RecipeCard({ recipe, onDelete, onEdit }) {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:3000/deleteRecipe/${recipe._id}`);
+      await axios.delete(`https://newrb-backend.onrender.com/deleteRecipe/${recipe._id}`);
       onDelete(recipe._id);
       alert("Recipe deleted successfully ✅");
     } catch (err) {
@@ -27,7 +27,7 @@ export default function RecipeCard({ recipe, onDelete, onEdit }) {
     e.preventDefault();
     try {
       await axios.put(
-        `http://localhost:3000/updateRecipe/${recipe._id}`,
+        `https://newrb-backend.onrender.com/updateRecipe/${recipe._id}`,
         editedRecipe
       );
       onEdit(editedRecipe);
