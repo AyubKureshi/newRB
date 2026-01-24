@@ -21,7 +21,7 @@ export default function RegisterModal({ onClose, onLogin, onLoginOpen }) {
 
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:3000/auth/register", form, {
+      const res = await axios.post("https://newrb-backend.onrender.com/auth/register", form, {
         headers: { "Content-Type": "application/json" },
       });
 
