@@ -1,0 +1,15 @@
+# env files (global)
+.env
+.env.*
+backend/.env
+frontend/.env
+
+# dependencies
+node_modules/
+
+# builds
+dist
+build
+
+# logs
+*.log
