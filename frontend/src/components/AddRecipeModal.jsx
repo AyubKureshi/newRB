@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useState } from "react";
-import axios from "axios";
+import apiClient from "../services/apiClient";
 
 export default function AddRecipeModal({ onClose, onRecipeAdded }) {
   const [formData, setFormData] = useState({
@@ -29,17 +29,14 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
     };
 
     try {
-      console.log("Submitting:", formattedData);
-
-      const res = await axios.post("http://localhost:3000/addRecipe", formattedData, {
+      const res = await apiClient.post("/addRecipe", formattedData, {
         headers: { "Content-Type": "application/json" },
       });
 
-      onRecipeAdded(res.data);
+      onRecipeAdded(res.data.recipe);
       onClose();
       alert("Recipe added successfully!");
     } catch (err) {
-      console.error("❌ Error adding recipe:", err.response?.data || err.message);
       alert("Failed to add recipe — check console for details.");
     }
   };

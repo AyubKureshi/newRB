@@ -1,13 +1,13 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import RecipeCard from "../components/RecipeCard";
+import apiClient from "../services/apiClient";
 
 export function UserRecipe() {
   const [recipes, setRecipes] = useState([]);
 
   const fetchRecipes = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/recipes");
+      const res = await apiClient.get("/recipes");
       setRecipes(res.data);
     } catch (err) {
       console.error("Error fetching recipes:", err);
@@ -24,7 +24,7 @@ export function UserRecipe() {
         🍳 Your Recipes
       </h1>
 
-      {recipes.length > 1 ? (
+      {recipes.length > 0 ? (
         <div className="flex flex-wrap justify-center gap-6">
             {recipes.map((recipe) => {
                 <RecipeCard 

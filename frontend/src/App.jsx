@@ -1,16 +1,11 @@
-import { useState } from "react";
 import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-
+import { Outlet } from "react-router-dom";
 
 const App = () => {
-
-  const [searchTerm, setSearchTerm] = useState("");
-
   return (
     <div className="">
-      <Navbar setSearchTerm={setSearchTerm} />
-      <Home searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <Navbar />
+      <Outlet />
     </div>
   )
 }

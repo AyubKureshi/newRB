@@ -1,19 +1,28 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Navbar from "../components/Navbar";
 import RecipeCard from "../components/RecipeCard";
+import apiClient from "../services/apiClient";
+import { useSelector } from "react-redux";
 
-export default function Home({ searchTerm, setSearchTerm }) {
+export default function Home() {
+  const searchTerm = useSelector((store) => store.search);
   const [recipes, setRecipes] = useState([]);
 
   const fetchRecipes = async () => {
     try {
-      const res = await axios.get("http://localhost:3000/recipes");
-      setRecipes(res.data);
+      const res = await apiClient.get("/recipes");
+
+      if (Array.isArray(res.data)) {
+        setRecipes(res.data);
+      } else {
+        setRecipes([]); // safety net
+      }
     } catch (err) {
       console.error("Error fetching recipes:", err);
+      setRecipes([]);
     }
   };
+
 
   useEffect(() => {
     fetchRecipes();
@@ -22,16 +31,20 @@ export default function Home({ searchTerm, setSearchTerm }) {
   const handleNewRecipe = (newRecipe) => {
     setRecipes((prev) => [...prev, newRecipe]);
   };
+  
 
-  const filteredRecipes = recipes.filter(
-    (r) =>
-      r.recipeName.toLowerCase().includes(searchTerm) ||
-      r.category.toLowerCase().includes(searchTerm)
-  );
+  const filteredRecipes = recipes.filter((recipe) => {
+    if (!searchTerm) return true;
+
+    return (
+      recipe.recipeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      recipe.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   return (
     <div className="md:pt-24 pt-32 px-6 bg-black min-h-screen">
-      <Navbar onRecipeAdded={handleNewRecipe} setSearchTerm={setSearchTerm} />
+      <Navbar onRecipeAdded={handleNewRecipe} />
       <h1 className="text-3xl text-orange-500 font-bold mb-6 text-center">
         🍳 Your Recipes
       </h1>

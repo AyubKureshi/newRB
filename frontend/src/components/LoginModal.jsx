@@ -1,8 +1,9 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useState } from "react";
-import axios from "axios";
 import RegisterModal from "./RegisterModal";
+import axios from "axios";
+import apiClient from "../services/apiClient"
 
 export default function LoginModal({ onClose, onLogin, onOpenRegister }) {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -22,7 +23,7 @@ export default function LoginModal({ onClose, onLogin, onOpenRegister }) {
 
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:3000/auth/login", form, {
+      const res = await apiClient.post("/auth/login", form, {
         headers: { "Content-Type": "application/json" },
       });
 
@@ -42,7 +43,6 @@ export default function LoginModal({ onClose, onLogin, onOpenRegister }) {
       alert("Login successful ✅");
       onClose();
     } catch (err) {
-      console.error("Login error:", err.response?.data || err.message);
       setError(err.response?.data?.error || "Login failed");
     } finally {
       setLoading(false);

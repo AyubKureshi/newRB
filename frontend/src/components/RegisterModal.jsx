@@ -2,6 +2,7 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useState } from "react";
+import apiClient from "../services/apiClient";
 
 export default function RegisterModal({ onClose, onLogin, onLoginOpen }) {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
@@ -21,7 +22,7 @@ export default function RegisterModal({ onClose, onLogin, onLoginOpen }) {
 
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:3000/auth/register", form, {
+      const res = await apiClient.post("/auth/register", form, {
         headers: { "Content-Type": "application/json" },
       });
 
@@ -38,7 +39,6 @@ export default function RegisterModal({ onClose, onLogin, onLoginOpen }) {
       alert("Registration successful ✅");
       onClose();
     } catch (err) {
-      console.error("Registration error: ", err.response?.data || err.message);
       setError(err.response?.data?.error || "Registration failed, try again later");
     } finally {
       setLoading(false);

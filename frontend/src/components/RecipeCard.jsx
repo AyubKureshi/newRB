@@ -1,6 +1,6 @@
 import { Clock, UtensilsCrossed, List, Tags } from "lucide-react";
 import { useState } from "react";
-import axios from "axios";
+import apiClient from "../services/apiClient";
 
 export default function RecipeCard({ recipe, onDelete, onEdit }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -14,11 +14,10 @@ export default function RecipeCard({ recipe, onDelete, onEdit }) {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://localhost:3000/deleteRecipe/${recipe._id}`);
+      await apiClient.delete(`/deleteRecipe/${recipe._id}`);
       onDelete(recipe._id);
       alert("Recipe deleted successfully ✅");
     } catch (err) {
-      console.error("Error deleting recipe: ", err);
       alert("❌ Failed to delete recipe");
     }
   };
@@ -26,15 +25,14 @@ export default function RecipeCard({ recipe, onDelete, onEdit }) {
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(
-        `http://localhost:3000/updateRecipe/${recipe._id}`,
+      await apiClient.put(
+        `/updateRecipe/${recipe._id}`,
         editedRecipe
       );
       onEdit(editedRecipe);
       alert("✅ Recipe updated successfully!");
       setIsEditing(false);
     } catch (err) {
-      console.error("Error updating recipe:", err);
       alert("❌ Failed to update recipe");
     }
   };
@@ -133,7 +131,7 @@ export default function RecipeCard({ recipe, onDelete, onEdit }) {
   return (
     <>
       <div
-        className="relative bg-[#0d0e12] text-white rounded-2xl shadow-lg p-5 pb-16 w-full sm:w-[300px] hover:scale-105 cursor-pointer transition-transform duration-300 border border-gray-700"
+        className="relative bg-[#0d0e12] text-white rounded-2xl shadow-lg p-5 pb-16 w-full sm:w-[300px] sm:hover:-translate-y-2 cursor-pointer transition-all sm:duration-500 border border-gray-700"
         onClick={() => setIsViewModalOpen(true)}
       >
         {/* Recipe Name */}

@@ -4,8 +4,15 @@ import { useState, useEffect } from "react";
 import AddRecipeModal from "./AddRecipeModal";
 import LoginModal from "./LoginModal"
 import RegisterModal from "./RegisterModal";
+import { useDispatch } from "react-redux";
+import { searchAction } from "../store/searchSlice";
 
-export default function Navbar({ onRecipeAdded, setSearchTerm }) {
+export default function Navbar({ onRecipeAdded }) {
+  const dispatch = useDispatch();
+  const handleSearch = (e) => {
+    dispatch(searchAction.handleSearchTerm(e.target.value));
+  }
+
   const [isLoginOpen, setLoginOpen] = useState(false);
   const [isAddOpen, setAddOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -45,7 +52,7 @@ export default function Navbar({ onRecipeAdded, setSearchTerm }) {
               type="text"
               placeholder="Search Recipes"
               className="outline-none px-2 bg-transparent text-sm text-black"
-              onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+              onChange={handleSearch}
             />
           </div>
 
@@ -65,7 +72,10 @@ export default function Navbar({ onRecipeAdded, setSearchTerm }) {
                 </button>
               </>
             ) : (
-              <button onClick={() => setLoginOpen(true)} className="hover:underline">
+              <button
+                onClick={() => setLoginOpen(true)}
+                className="hover:underline"
+              >
                 Login
               </button>
             )}
@@ -95,7 +105,7 @@ export default function Navbar({ onRecipeAdded, setSearchTerm }) {
               type="text"
               placeholder="Search Recipes"
               className="outline-none px-2 bg-transparent text-sm text-black w-full"
-              onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+              onChange={handleSearch}
             />
           </div>
         </div>
@@ -128,7 +138,12 @@ export default function Navbar({ onRecipeAdded, setSearchTerm }) {
           </div>
         )}
       </nav>
-      {isAddOpen && <AddRecipeModal onClose={() => setAddOpen(false)} onRecipeAdded={onRecipeAdded} />}
+      {isAddOpen && (
+        <AddRecipeModal
+          onClose={() => setAddOpen(false)}
+          onRecipeAdded={onRecipeAdded}
+        />
+      )}
       {isLoginOpen && (
         <LoginModal
           onClose={() => setLoginOpen(false)}
