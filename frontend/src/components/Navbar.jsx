@@ -137,7 +137,7 @@ export default function Navbar({ onRecipeAdded }) {
                   Add Recipe
                 </button>
                 <Link to={"/user-recipes"} className="hover:underline">
-                  Your Recipes
+                  My Recipes
                 </Link>
                 <Link to={"/favourites"} className="hover:underline">
                   Favourites
