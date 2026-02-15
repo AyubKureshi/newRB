@@ -1,11 +1,14 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import RegisterModal from "./RegisterModal";
 import axios from "axios";
-import apiClient from "../services/apiClient"
+import apiClient from "../services/apiClient";
+import { showToast } from "../store/toastSlice";
 
 export default function LoginModal({ onClose, onLogin, onOpenRegister }) {
+  const dispatch = useDispatch();
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -40,7 +43,7 @@ export default function LoginModal({ onClose, onLogin, onOpenRegister }) {
       // notify parent (Navbar) that login happened
       if (onLogin) onLogin(user);
 
-      alert("Login successful ✅");
+      dispatch(showToast({ type: "success", message: "Login successful" }));
       onClose();
     } catch (err) {
       setError(err.response?.data?.error || "Login failed");
@@ -146,3 +149,4 @@ export default function LoginModal({ onClose, onLogin, onOpenRegister }) {
     </AnimatePresence>
   );
 }
+

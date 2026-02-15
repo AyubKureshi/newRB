@@ -6,6 +6,7 @@ import LoginModal from "./LoginModal"
 import RegisterModal from "./RegisterModal";
 import { useDispatch } from "react-redux";
 import { searchAction } from "../store/searchSlice";
+import { Link } from "react-router-dom";
 
 export default function Navbar({ onRecipeAdded }) {
   const dispatch = useDispatch();
@@ -41,9 +42,9 @@ export default function Navbar({ onRecipeAdded }) {
         {/* Navbar top row */}
         <div className="flex justify-between items-center px-4 md:px-6 py-3 h-20 w-full">
           {/* Logo */}
-          <h1 className="text-xl md:text-2xl text-orange-600 font-bold">
+          <Link to={"/"} className="text-xl md:text-2xl text-orange-600 font-bold cursor-pointer">
             RecipeBook
-          </h1>
+          </Link>
 
           {/* Search bar (hidden on small screens) */}
           <div className="hidden md:flex items-center bg-white rounded-full px-3 py-1">
@@ -51,35 +52,49 @@ export default function Navbar({ onRecipeAdded }) {
             <input
               type="text"
               placeholder="Search Recipes"
-              className="outline-none px-2 bg-transparent text-sm text-black"
+              className="outline-none px-2 py-1 w-80 bg-transparent text-sm text-black"
               onChange={handleSearch}
             />
           </div>
 
           {/* Desktop buttons */}
-          <div className="hidden md:flex gap-4 items-center text-white">
-            <button
-              onClick={() => setAddOpen(true)}
-              className="hover:underline"
-            >
-              Add Recipe
-            </button>
-            <button className="hover:underline">Your Recipes</button>
-            {user ? (
-              <>
-                <button onClick={handleLogout} className="hover:underline">
-                  Logout
-                </button>
-              </>
-            ) : (
+          {user ? (
+            <div className="hidden md:flex gap-4 items-center text-white">
+              <button
+                onClick={() => setAddOpen(true)}
+                className="text-white hover:bg-orange-600 transition-colors px-3 py-1 rounded-full"
+              >
+                Add Recipe
+              </button>
+              <Link
+                to={"/user-recipes"}
+                className="text-white hover:bg-orange-600 transition-colors px-3 py-1 rounded-full"
+              >
+                My Recipes
+              </Link>
+              <Link
+                to={"/favourites"}
+                className="text-white hover:bg-orange-600 transition-colors px-3 py-1 rounded-full"
+              >
+                Favourites
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-white hover:bg-orange-600 transition-colors px-3 py-1 rounded-full"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div className="hidden md:flex gap-4 items-center text-white">
               <button
                 onClick={() => setLoginOpen(true)}
-                className="hover:underline"
+                className="text-white font-semibold bg-orange-600 transition-colors px-3 py-1 rounded-full"
               >
                 Login
               </button>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Mobile Menu Icon (always right-aligned) */}
           <div className="md:hidden flex items-center justify-end w-8">
@@ -113,20 +128,27 @@ export default function Navbar({ onRecipeAdded }) {
         {/* Mobile dropdown (full-width below navbar) */}
         {menuOpen && (
           <div className="md:hidden bg-[#0d0e12] text-white flex flex-col items-center py-4 gap-3 border-t border-gray-700 animate-slideDown">
-            <button
-              onClick={() => setAddOpen(true)}
-              className="hover:underline"
-            >
-              Add Recipe
-            </button>
-            <button className="hover:underline">Your Recipes</button>
             {user ? (
-              <button
-                onClick={handleLogout}
-                className="hover:underline text-red-400"
-              >
-                Logout
-              </button>
+              <>
+                <button
+                  onClick={() => setAddOpen(true)}
+                  className="hover:underline"
+                >
+                  Add Recipe
+                </button>
+                <Link to={"/user-recipes"} className="hover:underline">
+                  Your Recipes
+                </Link>
+                <Link to={"/favourites"} className="hover:underline">
+                  Favourites
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="hover:underline text-red-400"
+                >
+                  Logout
+                </button>
+              </>
             ) : (
               <button
                 onClick={() => setLoginOpen(true)}

@@ -1,9 +1,12 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import apiClient from "../services/apiClient";
+import { showToast } from "../store/toastSlice";
 
 export default function AddRecipeModal({ onClose, onRecipeAdded }) {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     recipeName: "",
     ingredients: "",
@@ -30,14 +33,18 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
 
     try {
       const res = await apiClient.post("/addRecipe", formattedData, {
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("rb_token")}`,
+        },
       });
 
-      onRecipeAdded(res.data.recipe);
+      if (typeof onRecipeAdded === "function") {
+        onRecipeAdded(res.data.recipe);
+      }
       onClose();
-      alert("Recipe added successfully!");
+      dispatch(showToast({ type: "success", message: "Recipe added successfully!" }));
     } catch (err) {
-      alert("Failed to add recipe — check console for details.");
+      dispatch(showToast({ type: "error", message: err.response?.data?.error || "Failed to add recipe" }));
     }
   };
 
@@ -175,3 +182,4 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
     </AnimatePresence>
   );
 }
+

@@ -2,9 +2,12 @@ import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import apiClient from "../services/apiClient";
+import { showToast } from "../store/toastSlice";
 
-export default function RegisterModal({ onClose, onLogin, onLoginOpen }) {
+export default function RegisterModal({ onClose, onLogin, onLoginOpen }) { 
+  const dispatch = useDispatch();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -36,7 +39,7 @@ export default function RegisterModal({ onClose, onLogin, onLoginOpen }) {
 
       if (onLogin) onLogin(user);
 
-      alert("Registration successful ✅");
+      dispatch(showToast({ type: "success", message: "Registration successful" }));
       onClose();
     } catch (err) {
       setError(err.response?.data?.error || "Registration failed, try again later");
@@ -137,3 +140,4 @@ export default function RegisterModal({ onClose, onLogin, onLoginOpen }) {
     </AnimatePresence>
   );
 }
+

@@ -1,157 +1,150 @@
-import { Clock, UtensilsCrossed, List, Tags } from "lucide-react";
+import { Clock, UtensilsCrossed, List, Tags, Heart, Timer } from "lucide-react";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import apiClient from "../services/apiClient";
+import EditRecipe from "./EditRecipe";
+import { showToast } from "../store/toastSlice";
 
-export default function RecipeCard({ recipe, onDelete, onEdit }) {
+export default function RecipeCard({
+  recipe,
+  onDelete,
+  onEdit,
+  showActions = true,
+  isFavourite = false,
+  onFavouriteAdded,
+  onFavouriteRemoved,
+}) {
+  const dispatch = useDispatch();
   const [isEditing, setIsEditing] = useState(false);
   const [editedRecipe, setEditedRecipe] = useState({ ...recipe });
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   const handleDelete = async () => {
     const confirmDelete = window.confirm(
-      `Are you sure you want to delete "${recipe.recipeName}"?`
+      `Are you sure you want to delete "${recipe.recipeName}"?`,
     );
     if (!confirmDelete) return;
 
     try {
-      await apiClient.delete(`/deleteRecipe/${recipe._id}`);
-      onDelete(recipe._id);
-      alert("Recipe deleted successfully ✅");
+      await apiClient.delete(`/deleteRecipe/${recipe._id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("rb_token")}`,
+        },
+      });
+      if (onDelete) onDelete(recipe._id);
+      dispatch(
+        showToast({ type: "success", message: "Recipe deleted successfully" }),
+      );
     } catch (err) {
-      alert("❌ Failed to delete recipe");
+      dispatch(
+        showToast({ type: "error", message: "Failed to delete recipe" }),
+      );
     }
   };
 
-  const handleEditSubmit = async (e) => {
+  const addToFavourite = async (e) => {
     e.preventDefault();
-    try {
-      await apiClient.put(
-        `/updateRecipe/${recipe._id}`,
-        editedRecipe
+    e.stopPropagation();
+
+    const token = localStorage.getItem("rb_token");
+    if (!token) {
+      dispatch(
+        showToast({ type: "error", message: "Please login to add favourites" }),
       );
-      onEdit(editedRecipe);
-      alert("✅ Recipe updated successfully!");
-      setIsEditing(false);
-    } catch (err) {
-      alert("❌ Failed to update recipe");
+      return;
+    }
+
+    if (isFavourite) {
+      try {
+        await apiClient.delete(`/favourites/remove-favourites/${recipe._id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        onFavouriteRemoved?.(recipe._id);
+        dispatch(showToast({ type: "success", message: "Removed from favourites" }));
+      } catch (error) {
+        dispatch(
+          showToast({
+            type: "error",
+            message: error.response?.data?.message || "Failed to remove from favourites",
+          }),
+        );
+      }
+      return;
+    }
+
+    try {
+      await apiClient.post(
+        "/favourites/add-favourites",
+        { recipeId: recipe._id },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+
+      onFavouriteAdded?.(recipe._id);
+      dispatch(showToast({ type: "success", message: "Added to favourites" }));
+    } catch (error) {
+      if (error.response?.status === 409) {
+        // If already favourite on server, toggle it off instead of showing "already favourite".
+        try {
+          await apiClient.delete(`/favourites/remove-favourites/${recipe._id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          onFavouriteRemoved?.(recipe._id);
+          dispatch(showToast({ type: "success", message: "Removed from favourites" }));
+          return;
+        } catch (removeError) {
+          dispatch(
+            showToast({
+              type: "error",
+              message:
+                removeError.response?.data?.message || "Failed to remove from favourites",
+            }),
+          );
+          return;
+        }
+      }
+
+      dispatch(
+        showToast({
+          type: "error",
+          message: error.response?.data?.message || "Failed to add to favourites",
+        }),
+      );
     }
   };
+
 
   if (isEditing) {
     return (
-      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-        <div className="bg-gray-900 text-white p-6 rounded-xl w-96 shadow-lg relative">
-          <h2 className="text-xl font-bold text-orange-400 mb-4 text-center">
-            Edit Recipe
-          </h2>
-
-          <form onSubmit={handleEditSubmit} className="flex flex-col gap-3">
-            <input
-              type="text"
-              value={editedRecipe.recipeName}
-              onChange={(e) =>
-                setEditedRecipe({ ...editedRecipe, recipeName: e.target.value })
-              }
-              placeholder="Recipe Name"
-              className="bg-gray-800 p-2 rounded"
-              required
-            />
-
-            <input
-              type="text"
-              value={editedRecipe.time}
-              onChange={(e) =>
-                setEditedRecipe({ ...editedRecipe, time: e.target.value })
-              }
-              placeholder="Cooking Time"
-              className="bg-gray-800 p-2 rounded"
-              required
-            />
-
-            <input
-              type="text"
-              value={editedRecipe.category}
-              onChange={(e) =>
-                setEditedRecipe({ ...editedRecipe, category: e.target.value })
-              }
-              placeholder="Category"
-              className="bg-gray-800 p-2 rounded"
-              required
-            />
-
-            <textarea
-              value={editedRecipe.ingredients.join(", ")}
-              onChange={(e) =>
-                setEditedRecipe({
-                  ...editedRecipe,
-                  ingredients: e.target.value.split(",").map((i) => i.trim()),
-                })
-              }
-              placeholder="Ingredients (comma separated)"
-              className="bg-gray-800 p-2 rounded"
-              rows="3"
-              required
-            />
-
-            <textarea
-              value={editedRecipe.steps.join(", ")}
-              onChange={(e) =>
-                setEditedRecipe({
-                  ...editedRecipe,
-                  steps: e.target.value.split(",").map((s) => s.trim()),
-                })
-              }
-              placeholder="Steps (comma separated)"
-              className="bg-gray-800 p-2 rounded"
-              rows="3"
-              required
-            />
-
-            <div className="flex justify-between mt-4">
-              <button
-                type="submit"
-                className="bg-orange-600 px-4 py-2 rounded-lg hover:bg-orange-700 transition"
-              >
-                Save Changes
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsEditing(false)}
-                className="bg-gray-700 px-4 py-2 rounded-lg hover:bg-gray-600 transition"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
+      <EditRecipe
+        editedRecipe={editedRecipe}
+        setEditedRecipe={setEditedRecipe}
+        setIsEditing={setIsEditing}
+        onEdit={onEdit}
+        recipe={recipe}
+      />
     );
   }
 
   return (
     <>
       <div
-        className="relative bg-[#0d0e12] text-white rounded-2xl shadow-lg p-5 pb-16 w-full sm:w-[300px] sm:hover:-translate-y-2 cursor-pointer transition-all sm:duration-500 border border-gray-700"
+        className="relative bg-[#0d0e12] text-white rounded-2xl shadow-lg p-5 pb-8 w-full sm:w-[300px] sm:hover:-translate-y-2 cursor-pointer transition-all sm:duration-500 border border-gray-700"
         onClick={() => setIsViewModalOpen(true)}
       >
-        {/* Recipe Name */}
         <h2 className="text-xl font-semibold text-orange-500 mb-2">
           {recipe.recipeName}
         </h2>
 
-        {/* Category */}
         <div className="flex items-center gap-2 mb-2">
           <Tags size={16} className="text-orange-400" />
           <p className="text-sm text-gray-300">{recipe.category}</p>
         </div>
 
-        {/* Time */}
         <div className="flex items-center gap-2 mb-2">
           <Clock size={16} className="text-orange-400" />
           <p className="text-sm text-gray-300">{recipe.time}</p>
         </div>
 
-        {/* Ingredients */}
         <div className="mb-2">
           <div className="flex items-center gap-2 mb-1">
             <UtensilsCrossed size={16} className="text-orange-400" />
@@ -167,7 +160,6 @@ export default function RecipeCard({ recipe, onDelete, onEdit }) {
           </ul>
         </div>
 
-        {/* Steps */}
         <div className="mb-3">
           <div className="flex items-center gap-2 mb-1">
             <List size={16} className="text-orange-400" />
@@ -182,31 +174,43 @@ export default function RecipeCard({ recipe, onDelete, onEdit }) {
             )}
           </ol>
         </div>
-
-        {/* Buttons */}
-        <div className="absolute bottom-4 left-0 w-full flex justify-center gap-6">
+        <div className="absolute bottom-4 right-4">
           <button
-            className="bg-orange-600 px-3 py-1 rounded-lg text-sm hover:bg-orange-700 transition"
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsEditing(true)
-            } }
+            onClick={addToFavourite}
+            className={`transition ${
+              isFavourite
+                ? "text-red-500 fill-red-500"
+                : "text-gray-300 hover:text-red-400"
+            }`}
           >
-            Edit
-          </button>
-          <button
-            className="bg-gray-700 px-3 py-1 rounded-lg text-sm hover:bg-gray-600 transition"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete();
-            }}
-          >
-            Delete
+            <Heart fill={isFavourite ? "currentColor" : "none"} />
           </button>
         </div>
+
+        {showActions && (
+          <div className="absolute bottom-4 left-0 w-full flex justify-center gap-6">
+            <button
+              className="bg-orange-600 px-3 py-1 rounded-lg text-sm hover:bg-orange-700 transition"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditing(true);
+              }}
+            >
+              Edit
+            </button>
+            <button
+              className="bg-gray-700 px-3 py-1 rounded-lg text-sm hover:bg-gray-600 transition"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete();
+              }}
+            >
+              Delete
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* 🔍 View Full Recipe Modal */}
       {isViewModalOpen && (
         <div
           className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
@@ -220,7 +224,7 @@ export default function RecipeCard({ recipe, onDelete, onEdit }) {
               {recipe.recipeName}
             </h2>
             <p className="text-gray-400 mb-1 text-center">
-              🕒 {recipe.time} | 📂 {recipe.category}
+              <Timer /> {recipe.time} | {recipe.category}
             </p>
 
             <h3 className="mt-4 text-lg text-orange-400 font-semibold">
